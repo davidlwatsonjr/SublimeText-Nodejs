@@ -9,17 +9,6 @@ def main_thread(callback, *args, **kwargs):
   # most sublime.[something] calls need to be on the main thread
   sublime.set_timeout(functools.partial(callback, *args, **kwargs), 0)
 
-def _make_text_safeish(text, fallback_encoding):
-  # The unicode decode here is because sublime converts to unicode inside
-  # insert in such a way that unknown characters will cause errors, which is
-  # distinctly non-ideal... and there's no way to tell what's coming out of
-  # git in output. So...
-  try:
-    unitext = text.decode('utf-8')
-  except UnicodeDecodeError:
-    unitext = text.decode(fallback_encoding)
-  return unitext
-
 class CommandThread(threading.Thread):
   def __init__(self, command, on_done, working_dir="", fallback_encoding="", env={}):
     threading.Thread.__init__(self)
@@ -39,10 +28,7 @@ class CommandThread(threading.Thread):
       proc = subprocess.Popen(self.command,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         shell=shell, universal_newlines=True, env=self.env)
-      output = proc.communicate()[0]
-      # if sublime's python gets bumped to 2.7 we can just do:
-      # output = subprocess.check_output(self.command)
-      main_thread(self.on_done, _make_text_safeish(output, self.fallback_encoding))
+      main_thread(self.on_done, proc.communicate()[0])
     except subprocess.CalledProcessError as e:
       main_thread(self.on_done, e.returncode)
     except OSError as e:
