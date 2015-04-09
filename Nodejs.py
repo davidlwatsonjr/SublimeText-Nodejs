@@ -6,7 +6,7 @@ import sublime_plugin
 from .lib.command_thread import CommandThread
 
 # when sublime loads a plugin it's cd'd into the plugin directory. Thus
-# __file__ is useless for my purposes. What I want is "Packages/Git", but
+# __file__ is useless for my purposes. What I want is "Packages/nodejs", but
 # allowing for the possibility that someone has renamed the file.
 # Fun discovery: Sublime on windows still requires posix path separators.
 PLUGIN_DIRECTORY = os.getcwd().replace(os.path.normpath(os.path.join(os.getcwd(), '..', '..')) + os.path.sep, '').replace(os.path.sep, '/')
@@ -72,11 +72,11 @@ class NodeCommand(sublime_plugin.TextCommand):
 
   def panel(self, output, **kwargs):
     if not hasattr(self, 'output_view'):
-      self.output_view = self.get_window().get_output_panel("git")
+      self.output_view = self.get_window().get_output_panel("nodejs")
     self.output_view.set_read_only(False)
     self._output_to_view(self.output_view, output, clear=True, **kwargs)
     self.output_view.set_read_only(True)
-    self.get_window().run_command("show_panel", {"panel": "output.git"})
+    self.get_window().run_command("show_panel", {"panel": "output.nodejs"})
 
   def quick_panel(self, *args, **kwargs):
     self.get_window().show_quick_panel(*args, **kwargs)
@@ -94,7 +94,7 @@ class NodeCommand(sublime_plugin.TextCommand):
   def print_js_results(self, results):
     self.print_output(output=results, syntax="Packages/JavaScript/JavaScript.tmLanguage")
 
-# A base for all git commands that work with the entire repository
+# A base for all nodejs commands that work with the entire repository
 class NodeWindowCommand(NodeCommand, sublime_plugin.WindowCommand):
   def active_view(self):
     return self.window.active_view()
@@ -106,7 +106,7 @@ class NodeWindowCommand(NodeCommand, sublime_plugin.WindowCommand):
 
   # If there's no active view or the active view is not a file on the
   # filesystem (e.g. a search results view), we can infer the folder
-  # that the user intends Git commands to run against when there's only
+  # that the user intends nodejs commands to run against when there's only
   # only one.
   def is_enabled(self):
     if self._active_file_name() or len(self.window.folders()) == 1:
@@ -117,7 +117,7 @@ class NodeWindowCommand(NodeCommand, sublime_plugin.WindowCommand):
     return ''
 
   # If there is a file in the active view use that file's directory to
-  # search for the Git root.  Otherwise, use the only folder that is
+  # search for the nodejs root.  Otherwise, use the only folder that is
   # open.
   def get_working_dir(self):
     file_name = self._active_file_name()
@@ -129,7 +129,7 @@ class NodeWindowCommand(NodeCommand, sublime_plugin.WindowCommand):
   def get_window(self):
     return self.window
 
-# A base for all git commands that work with the file in the active view
+# A base for all nodejs commands that work with the file in the active view
 class NodeTextCommand(NodeWindowCommand, sublime_plugin.TextCommand):
   def active_view(self):
     return self.view
