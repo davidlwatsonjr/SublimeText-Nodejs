@@ -164,9 +164,12 @@ class NodeBuilddocsCommand(NodeTextCommand):
 
 # Command to Run node
 class NodeRunCommand(NodeTextCommand):
-  def run(self, edit):
+  def kill_old_nodes(self):
     command = """kill -9 `ps -ef | grep node | grep -v grep | awk '{print $2}'`"""
-    os.system(command)    
+    os.system(command)
+
+  def run(self, edit):
+    self.kill_old_nodes()
     command = ['node', self.view.file_name()]
     self.run_command(command, self.command_done)
 
@@ -178,10 +181,9 @@ class NodeRunCommand(NodeTextCommand):
       self.panel(result)
 
 # Command to run node with debug
-class NodeDrunCommand(NodeTextCommand):
+class NodeDrunCommand(NodeRunCommand):
   def run(self, edit):
-    command = """kill -9 `ps -ef | grep node | grep -v grep | awk '{print $2}'`"""
-    os.system(command)
+    self.kill_old_nodes()
     command = ['node', 'debug', self.view.file_name()]
     self.run_command(command, self.command_done)
 
