@@ -171,8 +171,9 @@ class NodeBuilddocsCommand(NodeTextCommand):
 # Command to Run node
 class NodeRunCommand(NodeTextCommand):
   def kill_old_nodes(self):
-    command = """kill -9 `ps -ef | grep node | grep -v grep | awk '{print $2}'`"""
-    os.system(command)
+    if sublime.platform() != "windows":
+      command = """kill -9 `ps -ef | grep node | grep -v grep | awk '{print $2}'`"""
+      os.system(command)
 
   def run(self, edit):
     self.kill_old_nodes()
